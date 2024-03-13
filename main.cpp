@@ -11,8 +11,6 @@
 int count1, count2;
 int main(int argc, char **argv)
 {
-    int a[10];
-    std::cout << std::size(a) << '\n';
     // std::fstream file("log.txt", std::ios::in | std::ios::app);
     auto con = XOpenDisplay(NULL);
     if (!con)
@@ -25,7 +23,7 @@ int main(int argc, char **argv)
     auto window =
         XCreateSimpleWindow(con, root, 0, 0, 300, 300, 0, BlackPixelOfScreen(screen), WhitePixelOfScreen(screen));
     // XRaiseWindow(con, window);
-    Visual();
+    auto pixmap = XCreatePixmap(con, window, 100, 100, DefaultDepthOfScreen(screen));
     XMapWindow(con, window);
     // XSetNormalHints(con, window,(XSizeHints[]){{.flags = PPosition | PSize, .x = (1920 - 300) / 2, .y = (1080 - 300)
     // / 2}});
@@ -34,7 +32,7 @@ int main(int argc, char **argv)
     XSelectInput(con, window, ExposureMask | ButtonPressMask | ButtonReleaseMask);
     XGCValues();
     GC gc = XCreateGC(con, window, GCForeground | GCBackground | GCCapStyle | GCJoinStyle,
-                      (XGCValues[]){{.foreground = XWhitePixelOfScreen(screen),
+                      (XGCValues[]){{.foreground = 0xffff00,
                                      .background = XBlackPixelOfScreen(screen),
                                      .cap_style = CapButt,
                                      .join_style = JoinBevel,
@@ -42,9 +40,14 @@ int main(int argc, char **argv)
     XSetLineAttributes(con, gc, 2, LineSolid, CapRound, JoinRound);
     auto sub1 = XCreateSimpleWindow(con, window, 0, 0, 200, 200, 0, XBlackPixelOfScreen(screen), 0xff0000);
     auto sub2 = XCreateSimpleWindow(con, window, 0, 0, 100, 100, 0, XBlackPixelOfScreen(screen), 0x00ff00);
-    XMapWindow(con, sub1);
-    XMapWindow(con, sub2);
-    XFlush(con);
+    XFillRectangle(con, pixmap, gc, 0, 0, 100, 100);
+    // XMapWindow(con, sub1);
+    // XMapWindow(con, sub2);
+    // XFlush(con);
+    unsigned int a[2];
+    XQueryBestTile(con, window, 100, 100, a, a + 1);
+    std::cout << *a << ' ' << *(a + 1) << '\n';
+
     bool x = false;
     while (true)
     {
@@ -54,6 +57,10 @@ int main(int argc, char **argv)
         case Expose: {
             // file << "hello world" << count1++ << '\n';
             // file.flush();
+            // std::cout << "hello world" << count1++ << '\n';
+            XUnmapWindow(con, sub1);
+            XUnmapWindow(con, sub2);
+            XFlush(con);
             int x, y;
             unsigned int width, length, border, depth;
             Window get;
@@ -65,11 +72,17 @@ int main(int argc, char **argv)
         case ButtonPress: {
             // file << "Not determined yet" << count2++ << '\n';
             // file.flush();
-            x = !x;
-            std::cout << std::boolalpha;
-            std::cout << x << '\n';
-            x ? XRaiseWindow(con, sub1) : XRaiseWindow(con, sub2);
+            XMapWindow(con, sub1);
+            XMapWindow(con, sub2);
             XFlush(con);
+            x = !x;
+            x ? XRaiseWindow(con, sub2) : XRaiseWindow(con, sub1);
+            XFlush(con);
+            break;
+        }
+        case ButtonRelease: {
+            XCopyArea(con, pixmap, sub1, gc, 0, 0, 100, 100, 100, 0);
+            XFlushGC(con, gc);
         }
         }
     }
