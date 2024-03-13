@@ -1,5 +1,6 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
@@ -10,7 +11,9 @@
 int count1, count2;
 int main(int argc, char **argv)
 {
-    std::fstream file("log.txt", std::ios::in | std::ios::app);
+    int a[10];
+    std::cout << std::size(a) << '\n';
+    // std::fstream file("log.txt", std::ios::in | std::ios::app);
     auto con = XOpenDisplay(NULL);
     if (!con)
         std::cerr << "connection failure\n";
@@ -19,14 +22,18 @@ int main(int argc, char **argv)
     auto num = XDefaultScreen(con);
     auto screen = XScreenOfDisplay(con, num);
     auto root = XRootWindowOfScreen(screen);
-    auto window = XCreateSimpleWindow(con, root, (1920 - 300) / 2, (1080 - 300) / 2, 300, 300, 0,
-                                      BlackPixelOfScreen(screen), WhitePixelOfScreen(screen));
-    XRaiseWindow(con, window);
+    auto window =
+        XCreateSimpleWindow(con, root, 0, 0, 300, 300, 0, BlackPixelOfScreen(screen), WhitePixelOfScreen(screen));
+    // XRaiseWindow(con, window);
+    Visual();
     XMapWindow(con, window);
+    // XSetNormalHints(con, window,(XSizeHints[]){{.flags = PPosition | PSize, .x = (1920 - 300) / 2, .y = (1080 - 300)
+    // / 2}});
+    XMoveWindow(con, window, (1920 - 300) / 2, (1080 - 300) / 2);
     XFlush(con);
     XSelectInput(con, window, ExposureMask | ButtonPressMask | ButtonReleaseMask);
     XGCValues();
-    GC gc = XCreateGC(con, window, GCCapStyle | GCJoinStyle,
+    GC gc = XCreateGC(con, window, GCForeground | GCBackground | GCCapStyle | GCJoinStyle,
                       (XGCValues[]){{.foreground = XWhitePixelOfScreen(screen),
                                      .background = XBlackPixelOfScreen(screen),
                                      .cap_style = CapButt,
@@ -56,7 +63,7 @@ int main(int argc, char **argv)
         }
     }
     delete event;
-    file.close();
+    // file.close();
     XFree(con);
     return 0;
 }
