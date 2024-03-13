@@ -40,6 +40,12 @@ int main(int argc, char **argv)
                                      .join_style = JoinBevel,
                                      .fill_style = FillSolid}});
     XSetLineAttributes(con, gc, 2, LineSolid, CapRound, JoinRound);
+    auto sub1 = XCreateSimpleWindow(con, window, 0, 0, 200, 200, 0, XBlackPixelOfScreen(screen), 0xff0000);
+    auto sub2 = XCreateSimpleWindow(con, window, 0, 0, 100, 100, 0, XBlackPixelOfScreen(screen), 0x00ff00);
+    XMapWindow(con, sub1);
+    XMapWindow(con, sub2);
+    XFlush(con);
+    bool x = false;
     while (true)
     {
         XNextEvent(con, event);
@@ -56,9 +62,14 @@ int main(int argc, char **argv)
             XFlush(con);
         }
         break;
-        default: {
+        case ButtonPress: {
             // file << "Not determined yet" << count2++ << '\n';
             // file.flush();
+            x = !x;
+            std::cout << std::boolalpha;
+            std::cout << x << '\n';
+            x ? XRaiseWindow(con, sub1) : XRaiseWindow(con, sub2);
+            XFlush(con);
         }
         }
     }
