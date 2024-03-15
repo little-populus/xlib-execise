@@ -1,19 +1,31 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <cstring>
+#include <do_n.hxx>
 #include <iostream>
 #include <tile_stipple.hxx>
+
+void callee(int x)
+{
+    std::cout << x << '\n';
+}
 int main()
 {
-    XEvent event;
+    XEvent *event = new XEvent;
     auto con = XOpenDisplay(nullptr);
     auto num = XDefaultScreen(con);
     auto scr = XScreenOfDisplay(con, num);
     auto window = XCreateSimpleWindow(con, XRootWindowOfScreen(scr), 0, 0, 300, 300, 0, XBlackPixelOfScreen(scr),
                                       XWhitePixelOfScreen(scr));
+    XChangeWindowAttributes(
+        con, window, CWBitGravity | CWWinGravity,
+        (XSetWindowAttributes[]){{.bit_gravity = SouthEastGravity, .win_gravity = SouthEastGravity}});
     XMapWindow(con, window);
     XMoveWindow(con, window, (1920 - 300) / 2, (1080 - 300) / 2);
     XSelectInput(con, window, ButtonPressMask | ButtonReleaseMask | ExposureMask);
+    auto sub = CreateSubwindow(con, window);
+    XMapWindow(con, sub);
     XFlush(con);
     auto pixmap1 = XCreatePixmap(con, window, 50, 50, XDefaultDepthOfScreen(scr));
     auto pixmap2 = XCreatePixmap(con, window, 20, 50, XDefaultDepthOfScreen(scr));
@@ -33,13 +45,15 @@ int main()
     auto gc3 = CreateTile(con, window, pixmap2);
     XFontStruct *font_info = XLoadQueryFont(con, "fixed");
     XSetFont(con, gc3, font_info->fid);
+    object_call_n foo(XFillRectangle, 100, con, window, gc1, 0, 0, 100, 100);
     while (true)
     {
-        XNextEvent(con, &event);
-        switch (event.type)
+        XNextEvent(con, event);
+        switch (event->type)
         {
         case Expose: {
-            XFillRectangle(con, window, gc1, 0, 0, 100, 100);
+            foo();
+            XDrawString(con, sub, gc1, 1, 10, "subwindow", strlen("subwindow"));
             XFlush(con);
             break;
         }
