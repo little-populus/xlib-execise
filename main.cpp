@@ -6,10 +6,11 @@
 #include <iostream>
 #include <tile_stipple.hxx>
 
-void callee(int x)
+template <typename Tp, typename... Arg> void func(Tp tp, Arg... arg)
 {
-    std::cout << x << '\n';
+    tp(arg...);
 }
+
 int main()
 {
     XEvent *event = new XEvent;
@@ -19,13 +20,13 @@ int main()
     auto window = XCreateSimpleWindow(con, XRootWindowOfScreen(scr), 0, 0, 300, 300, 0, XBlackPixelOfScreen(scr),
                                       XWhitePixelOfScreen(scr));
     XChangeWindowAttributes(
-        con, window, CWBitGravity | CWWinGravity,
-        (XSetWindowAttributes[]){{.bit_gravity = SouthEastGravity, .win_gravity = SouthEastGravity}});
+        con, window, CWBitGravity | CWWinGravity | CWBackingStore,
+        (XSetWindowAttributes[]){
+            {.bit_gravity = SouthEastGravity, .win_gravity = NorthWestGravity, .backing_store = WhenMapped}});
     XMapWindow(con, window);
     XMoveWindow(con, window, (1920 - 300) / 2, (1080 - 300) / 2);
     XSelectInput(con, window, ButtonPressMask | ButtonReleaseMask | ExposureMask);
     auto sub = CreateSubwindow(con, window);
-    XMapWindow(con, sub);
     XFlush(con);
     auto pixmap1 = XCreatePixmap(con, window, 50, 50, XDefaultDepthOfScreen(scr));
     auto pixmap2 = XCreatePixmap(con, window, 20, 50, XDefaultDepthOfScreen(scr));
@@ -45,19 +46,31 @@ int main()
     auto gc3 = CreateTile(con, window, pixmap2);
     XFontStruct *font_info = XLoadQueryFont(con, "fixed");
     XSetFont(con, gc3, font_info->fid);
-    object_call_n foo(XFillRectangle, 100, con, window, gc1, 0, 0, 100, 100);
+    object_call_n foo(XFillRectangle, 6, con, window, gc1, 0, 0, 100, 100);
+    XMapWindow(con, sub);
+    std::cout << std::boolalpha;
+    std::cout << XDoesBackingStore(scr) << ' ' << XDoesSaveUnders(scr) << '\n';
     while (true)
     {
         XNextEvent(con, event);
         switch (event->type)
         {
         case Expose: {
-            foo();
+            // XFillRectangle(con, window, gc1, 0, 0, 100, 100);
+            static int x = 0;
+            if (++x == 1)
+                func(XFillRectangle, con, window, gc1, 0, 0, 100, 100);
             XDrawString(con, sub, gc1, 1, 10, "subwindow", strlen("subwindow"));
+            XFlush(con);
+            XUnmapWindow(con, window);
+            XFlush(con);
+            XMapWindow(con, window);
             XFlush(con);
             break;
         }
         case ButtonPress: {
+            XUnmapWindow(con, sub);
+            XFlush(con);
             XFillRectangle(con, window, gc2, 100, 100, 75, 75);
             XFlush(con);
             break;

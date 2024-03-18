@@ -1,4 +1,5 @@
 #include <functional>
+#include <iostream>
 template <typename function, typename... Arg> struct object_call_n
 {
     decltype(std::bind(function(), Arg()...)) f;
@@ -11,6 +12,7 @@ template <typename function, typename... Arg> struct object_call_n
         if (_n)
         {
             --_n;
+            std::cout << _n << '\n';
             return f();
         }
         return decltype(f())();

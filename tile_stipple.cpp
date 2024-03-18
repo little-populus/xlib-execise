@@ -23,8 +23,8 @@ GC CreateStipple(Display *con, Window window, Pixmap pixmap)
 }
 Window CreateSubwindow(Display *con, Window window)
 {
-    auto sub = XCreateWindow(con, window, 200, 200, 100, 100, 0, XDefaultDepth(con, XDefaultScreen(con)),
-                             CopyFromParent, XDefaultVisual(con, XDefaultScreen(con)), CWBackPixel | CWSaveUnder,
+    auto sub = XCreateWindow(con, window, 50, 50, 100, 100, 0, XDefaultDepth(con, XDefaultScreen(con)), CopyFromParent,
+                             XDefaultVisual(con, XDefaultScreen(con)), CWBackPixel | CWSaveUnder,
                              (XSetWindowAttributes[]){{.background_pixel = 0x00ff00, .save_under = True}});
     XChangeWindowAttributes(con, sub, CWBitGravity | CWEventMask | CWWinGravity,
                             ((XSetWindowAttributes[]){{
