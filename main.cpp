@@ -22,7 +22,7 @@ int main()
     XChangeWindowAttributes(
         con, window, CWBitGravity | CWWinGravity | CWBackingStore,
         (XSetWindowAttributes[]){
-            {.bit_gravity = SouthEastGravity, .win_gravity = NorthWestGravity, .backing_store = WhenMapped}});
+            {.bit_gravity = SouthEastGravity, .win_gravity = NorthWestGravity, .backing_store = NotUseful}});
     XMapWindow(con, window);
     XMoveWindow(con, window, (1920 - 300) / 2, (1080 - 300) / 2);
     XSelectInput(con, window, ButtonPressMask | ButtonReleaseMask | ExposureMask);
@@ -36,6 +36,7 @@ int main()
                                         .cap_style = CapButt,
                                         .join_style = JoinBevel}});
     XFillRectangle(con, pixmap1, gc1, 0, 0, 50, 50);
+    XSetForeground(con, gc1, 0xff0000);
     XSetForeground(con, gc1, 0xff0000);
     XFillRectangle(con, pixmap1, gc1, 25, 25, 25, 25);
     XFillRectangle(con, pixmap1, gc1, 0, 0, 25, 25);
@@ -61,10 +62,6 @@ int main()
             if (++x == 1)
                 func(XFillRectangle, con, window, gc1, 0, 0, 100, 100);
             XDrawString(con, sub, gc1, 1, 10, "subwindow", strlen("subwindow"));
-            XFlush(con);
-            XUnmapWindow(con, window);
-            XFlush(con);
-            XMapWindow(con, window);
             XFlush(con);
             break;
         }
