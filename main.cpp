@@ -10,7 +10,6 @@ template <typename Tp, typename... Arg> void func(Tp tp, Arg... arg)
 {
     tp(arg...);
 }
-
 int main()
 {
     XEvent *event = new XEvent;
