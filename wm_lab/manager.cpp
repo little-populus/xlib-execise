@@ -3,6 +3,7 @@
 #include "header/thread.hpp"
 #include <X11/Xlib.h>
 #include <iostream>
+#include <unistd.h>
 
 Manager::Manager() : _display(XOpenDisplay(nullptr))
 {
@@ -15,11 +16,18 @@ void Manager::run()
     XEvent event;
     thread t{foo, (void *)1};
     t.run();
+    sleep(10);
     while (1)
     {
         XNextEvent(_display, &event);
         switch (event.type)
         {
+        case MapNotify:
+            std::cout << "window mapped\n";
+            break;
+        case UnmapNotify:
+            std::cout << "window unmapped\n";
+            break;
         default:
             std::cout << "default option in manager\n";
         }
