@@ -5,7 +5,10 @@
 #include <unistd.h>
 void *foo(void *arg)
 {
-    auto display = XOpenDisplay(":0");
+    std::cout << "in thread\n";
+    auto display = XOpenDisplay(nullptr);
+    if (!display)
+        std::cout << "disconnected\n";
     auto scr = XDefaultScreenOfDisplay(display);
     auto window = XCreateSimpleWindow(display, RootWindowOfScreen(scr), 0, 0, 100, 100, 0, XWhitePixelOfScreen(scr),
                                       XBlackPixelOfScreen(scr));
@@ -20,13 +23,12 @@ void *foo(void *arg)
         switch (event.type)
         {
         case Expose:
-            std::cout << "Hello World\n";
+            std::cout << "expose" << x << '\n';
             break;
         default:
             std::cout << "default\n";
             break;
         }
-        sleep(1);
         --x;
     }
     pthread_exit((void *)0);
