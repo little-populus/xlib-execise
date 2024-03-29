@@ -34,6 +34,9 @@ void Manager::run()
         case UnmapNotify:
             std::cout << "window unmapped\n";
             break;
+        case ConfigureNotify:
+            std::cout << "window configured\n";
+            break;
         default:
             std::cout << "default option in manager\n";
         }
