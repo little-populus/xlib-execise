@@ -1,6 +1,7 @@
 #include "header/manager.hpp"
 #include "header/foo.hpp"
 #include "header/thread.hpp"
+#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <iostream>
 #include <unistd.h>
@@ -21,6 +22,12 @@ void Manager::run()
         XNextEvent(_display, &event);
         switch (event.type)
         {
+        case CreateNotify:
+            std::cout << "window created\n";
+            break;
+        case DestroyNotify:
+            std::cout << "window destroyed\n";
+            break;
         case MapNotify:
             std::cout << "window mapped\n";
             break;
