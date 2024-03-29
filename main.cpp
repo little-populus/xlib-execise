@@ -13,7 +13,8 @@ template <typename Tp, typename... Arg> void func(Tp tp, Arg... arg)
 int main()
 {
     XEvent *event = new XEvent;
-    auto con = XOpenDisplay(nullptr);
+    auto con = XOpenDisplay(":0");
+    std::cout << XDefaultString() << '\n';
     auto num = XDefaultScreen(con);
     auto scr = XScreenOfDisplay(con, num);
     auto window = XCreateSimpleWindow(con, XRootWindowOfScreen(scr), 0, 0, 300, 300, 0, XBlackPixelOfScreen(scr),
