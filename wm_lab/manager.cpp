@@ -16,7 +16,6 @@ void Manager::run()
     XEvent event;
     thread t{foo, (void *)1};
     t.run();
-    sleep(10);
     while (1)
     {
         XNextEvent(_display, &event);
