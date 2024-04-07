@@ -37,6 +37,7 @@ void Manager::run()
         case ConfigureNotify:
             std::cout << "window configured\n";
             break;
+
         default:
             std::cout << "default option in manager\n";
         }
