@@ -31,5 +31,7 @@ void *foo(void *arg)
         }
         --x;
     }
+    XUnmapWindow(display, window);
+    XCloseDisplay(display);
     pthread_exit((void *)0);
 }
